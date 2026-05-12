@@ -156,9 +156,18 @@ function BookingForm() {
       });
       const json = await res.json();
       if (res.status === 409) {
-        setError("This slot just got fully booked. Please select another time.");
         update("timeSlot", "");
         setStep(4);
+        // Refresh slots so the full slot shows as Fully Booked immediately
+        if (data.appointmentDate) {
+          const dateStr = format(data.appointmentDate, "yyyy-MM-dd");
+          setLoadingSlots(true);
+          fetch(`/api/slots?date=${dateStr}`)
+            .then((r) => r.json())
+            .then((d) => setSlots(d.slots || []))
+            .finally(() => setLoadingSlots(false));
+        }
+        setError("This slot just got fully booked. Please select another time.");
         return;
       }
       if (!res.ok) throw new Error(json.error || "Failed to create booking");
