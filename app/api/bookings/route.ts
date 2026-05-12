@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 function generateReference(date: Date): string {
   const dateStr = format(date, "yyyyMMdd");
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
