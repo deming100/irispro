@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const dateObj = new Date(appointmentDate);
+  // appointmentDate arrives as "yyyy-MM-dd"; parseISO treats it as UTC midnight
+  const dateObj = parseISO(appointmentDate);
   const startOfDay = new Date(dateObj);
-  startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(dateObj);
-  endOfDay.setHours(23, 59, 59, 999);
+  endOfDay.setUTCHours(23, 59, 59, 999);
 
   try {
     const booking = await prisma.$transaction(async (tx) => {

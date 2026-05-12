@@ -151,7 +151,7 @@ function BookingForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          appointmentDate: data.appointmentDate?.toISOString(),
+          appointmentDate: data.appointmentDate ? format(data.appointmentDate, "yyyy-MM-dd") : null,
         }),
       });
       const json = await res.json();
