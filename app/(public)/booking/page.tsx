@@ -155,6 +155,12 @@ function BookingForm() {
         }),
       });
       const json = await res.json();
+      if (res.status === 409) {
+        setError("This slot just got fully booked. Please select another time.");
+        update("timeSlot", "");
+        setStep(4);
+        return;
+      }
       if (!res.ok) throw new Error(json.error || "Failed to create booking");
       router.push(`/booking/confirmation?ref=${json.booking.reference}`);
     } catch (e: unknown) {
