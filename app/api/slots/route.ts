@@ -39,8 +39,12 @@ export async function GET(request: NextRequest) {
     where: { date },
   });
 
-  const now = new Date();
-  const isToday = format(now, "yyyy-MM-dd") === date;
+  // Use Brunei time (UTC+8)
+  const nowUtc = new Date();
+  const bruneiOffset = 8 * 60;
+  const nowBrunei = new Date(nowUtc.getTime() + bruneiOffset * 60 * 1000);
+  const todayBrunei = nowBrunei.toISOString().slice(0, 10);
+  const isToday = todayBrunei === date;
 
   const slots = TIME_SLOTS.map((slot) => {
     const specificConfig = dateConfig.find((c) => c.timeSlot === slot);
@@ -53,9 +57,9 @@ export async function GET(request: NextRequest) {
       const [time, period] = slot.match(/(\d+:\d+)([AP]M)/)!.slice(1);
       const [hours, minutes] = time.split(":").map(Number);
       const slotHour = period === "PM" && hours !== 12 ? hours + 12 : period === "AM" && hours === 12 ? 0 : hours;
-      const slotTime = new Date();
-      slotTime.setHours(slotHour, minutes + 30, 0, 0);
-      isPast = isBefore(slotTime, now);
+      const slotTimeBrunei = new Date(nowUtc.getTime() + bruneiOffset * 60 * 1000);
+      slotTimeBrunei.setUTCHours(slotHour - 8, minutes, 0, 0);
+      isPast = isBefore(slotTimeBrunei, nowUtc);
     }
 
     return {
