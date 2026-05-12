@@ -141,7 +141,7 @@ export default function AdminBookingsPage() {
                       {b.productTier}
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <div className="text-sm text-white">{format(new Date(b.appointmentDate), "d MMM yyyy")}</div>
+                      <div className="text-sm text-white">{format(new Date(new Date(b.appointmentDate).getTime() + 8 * 60 * 60 * 1000), "d MMM yyyy")}</div>
                       <div className="text-xs text-gray-500">{b.timeSlot}</div>
                     </td>
                     <td className="px-5 py-4">

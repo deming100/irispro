@@ -4,11 +4,13 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 async function getStats() {
-  const now = new Date();
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
-  const endOfToday = new Date(now);
-  endOfToday.setHours(23, 59, 59, 999);
+  const BRUNEI_MS = 8 * 60 * 60 * 1000;
+  const nowBrunei = new Date(Date.now() + BRUNEI_MS);
+  const y = nowBrunei.getUTCFullYear();
+  const m = nowBrunei.getUTCMonth();
+  const d = nowBrunei.getUTCDate();
+  const startOfToday = new Date(Date.UTC(y, m, d, 0, 0, 0, 0) - BRUNEI_MS);
+  const endOfToday = new Date(Date.UTC(y, m, d, 23, 59, 59, 999) - BRUNEI_MS);
 
   const [todayCount, totalCount, pendingCount, recentBookings] = await Promise.all([
     prisma.booking.count({
@@ -89,7 +91,7 @@ export default async function AdminDashboard() {
                       <div className="text-gray-500 text-xs">{b.carBrand} {b.carModel}</div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-300">
-                      <div>{format(new Date(b.appointmentDate), "d MMM yyyy")}</div>
+                      <div>{format(new Date(b.appointmentDate.getTime() + 8 * 60 * 60 * 1000), "d MMM yyyy")}</div>
                       <div className="text-gray-500 text-xs">{b.timeSlot}</div>
                     </td>
                     <td className="px-6 py-4">

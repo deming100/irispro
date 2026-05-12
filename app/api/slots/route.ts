@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { TIME_SLOTS } from "@/lib/constants";
-import { parseISO, isBefore } from "date-fns";
+import { isBefore } from "date-fns";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -12,11 +12,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Date is required" }, { status: 400 });
   }
 
-  const dateObj = parseISO(date);
-  const startOfDay = new Date(dateObj);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(dateObj);
-  endOfDay.setHours(23, 59, 59, 999);
+  // Build UTC-equivalent boundaries for the given Brunei date (UTC+8)
+  const BRUNEI_MS = 8 * 60 * 60 * 1000;
+  const [y, m, d] = date.split("-").map(Number);
+  const startOfDay = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0) - BRUNEI_MS);
+  const endOfDay = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999) - BRUNEI_MS);
 
   const bookings = await prisma.booking.findMany({
     where: {
